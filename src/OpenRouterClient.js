@@ -1,7 +1,7 @@
 import './fetch-polyfill.js';
 import ChatClient from './ChatClient.js';
 
-//TODO: add support for other models
+//TODO: get model info from API
 const MODEL_INFO = {
     default: {
         contextLength: 8192,
@@ -23,6 +23,12 @@ const MODEL_INFO = {
     },
     'nousresearch/hermes-3-llama-3.1-405b': {
         contextLength: 131072,
+    },
+    'ai21/jamba-1-5-mini': {
+        contextLength: 256000,
+    },
+    'ai21/jamba-1-5-large': {
+        contextLength: 256000,
     },
 };
 
