@@ -15,6 +15,15 @@ const MODEL_INFO = {
     'meta-llama/llama-3.1-405b-instruct': {
         contextLength: 131072,
     },
+    'meta-llama/llama-3.1-8b': {
+        contextLength: 131072,
+    },
+    'meta-llama/llama-3.1-405b': {
+        contextLength: 131072,
+    },
+    'nousresearch/hermes-3-llama-3.1-405b': {
+        contextLength: 131072,
+    },
 };
 
 const OPENROUTER_DEFAULT_MODEL_OPTIONS = {
