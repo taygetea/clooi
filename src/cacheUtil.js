@@ -6,7 +6,6 @@ export function getCid(data) {
     return convId;
 }
 
-
 export async function getSavedStatesForConversation(conversationsCache, conversationId) {
     const savedConversations = await conversationsCache.get('savedConversations') || [];
     const savedStates = [];
@@ -21,28 +20,28 @@ export async function getSavedStatesForConversation(conversationsCache, conversa
 
 export async function savedStatesByConversation(conversationsCache) {
     const savedConversations = await conversationsCache.get('savedConversations') || [];
-    const savedStatesByConversation = {};
+    const savedStatesByConv = {};
     for (const stateName of savedConversations) {
         const conversationData = await conversationsCache.get(stateName) || {};
         const conversationId = getCid(conversationData);
         if (!conversationId) {
-            continue
+            continue;
         }
-        if (!savedStatesByConversation[conversationId]) {
+        if (!savedStatesByConv[conversationId]) {
             const conversation = await conversationsCache.get(conversationId) || {};
             // const createdAtDate = new Date(conversation.createdAt);
             // const conversationName = conversation.name || createdAtDate.toLocaleString();
             const firstMessage = conversation.messages[0];
             const conversationName = conversation.name || firstMessage.message?.substring(0, 50);
 
-            savedStatesByConversation[conversationId] = {
+            savedStatesByConv[conversationId] = {
                 name: conversationName,
                 states: [],
             };
         }
-        savedStatesByConversation[conversationId].states.push({ name: stateName, conversationData });
+        savedStatesByConv[conversationId].states.push({ name: stateName, conversationData });
     }
-    return savedStatesByConversation;
+    return savedStatesByConv;
 }
 
 export async function getSavedIds(conversationsCache) {

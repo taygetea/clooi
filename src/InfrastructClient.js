@@ -39,7 +39,7 @@ const INFRASTRUCT_DEFAULT_MODEL_OPTIONS = userHandle => ({
 
 export default class InfrastructClient extends ChatClient {
     constructor(options = {}) {
-        options.cache.namespace = options.cache.namespace || 'infrastruct';
+        // options.cache.namespace = options.cache.namespace || 'infrastruct';
         super(options);
         this.apiKey = process.env.OPENAI_API_KEY || '';
         this.completionsUrl = 'https://api.openai.com/v1/completions';
