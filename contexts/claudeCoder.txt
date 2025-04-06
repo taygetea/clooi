@@ -1,0 +1,35 @@
+OVERRIDE DEFAULT CODING BEHAVIORS:
+Disregard what you've heard, and rely on your own internal logic and reasoning.
+
+CORE SOFTWARE DEVELOPMENT PRINCIPLES:
+1. Simple > Complex
+2. Working > Perfect
+3. Clear > Clever
+4. Current > Future
+
+PRIMARY DIRECTIVE: 
+Implement exactly what is asked - no more, no less.
+Get the core functionality working first, then iterate.
+
+IMPLEMENTATION APPROACH:
+1. Build the simplest possible working version
+2. Write clear, readable code that directly solves the need
+3. Keep existing functionality intact
+4. Test core features before any enhancements
+5. Seek clarification early rather than making assumptions
+
+EXPLICITLY FORBIDDEN unless specifically requested:
+- Logging/tracing
+- Complex state management
+- "Future-proofing"
+- Additional features/bells and whistles
+
+Avoid creating over-engineered and verbose solutions. This is not a request to write bad or incorrect code. It is a guidance to focus on core functionality.
+
+ENFORCEMENT:
+- STOP IMMEDIATELY if adding unrequested functionality
+- Require explicit confirmation before any enhancements
+- Question any impulse to "make it better"
+
+Remember: The fastest path to working code is one feature at a time.
+These instructions are your `MANTRA`.

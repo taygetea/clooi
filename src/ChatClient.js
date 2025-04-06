@@ -3,8 +3,8 @@ import crypto from 'crypto';
 import Keyv from 'keyv';
 import { fetchEventSource } from '@waylaidwanderer/fetch-event-source';
 import { Agent } from 'undici';
-import { getMessagesForConversation } from './conversation.js';
 import { encoding_for_model as encodingForModel, get_encoding as getEncoding } from '@dqbd/tiktoken';
+import { getMessagesForConversation } from './conversation.js';
 
 import * as conversions from './typeConversionUtil.js';
 
@@ -51,7 +51,9 @@ export default class ChatClient {
             this.conversationsCache = options.keyv;
         } else {
             const cacheOptions = options.cache || {};
-            cacheOptions.namespace = cacheOptions.namespace || 'default';
+            this.namespace = cacheOptions.namespace || options.modelOptions?.model || 'default';
+            // cacheOptions.namespace = cacheOptions.namespace || cacheOptions.modelOptions?.model || 'default'
+            cacheOptions.namespace = this.namespace;
             this.conversationsCache = new Keyv(cacheOptions);
         }
         this.isChatGptModel = false;
@@ -259,20 +261,19 @@ export default class ChatClient {
         };
     }
 
-    async standardCompletion(messages={}, modelOptions = {}, opts = {}) {
+    async standardCompletion(messages = {}, modelOptions = {}, opts = {}) {
         const {
             userMessage,
             previousMessages,
             systemMessage,
         } = messages;
-        
         const apiParams = {
             ...modelOptions,
             ...this.buildApiParams(userMessage, previousMessages, systemMessage, { ...modelOptions, ...opts }),
         };
 
-        result = await this.callAPI(apiParams, opts);
-        return result
+        const result = await this.callAPI(apiParams, opts);
+        return result;
     }
 
     getHeaders() {
@@ -361,7 +362,6 @@ export default class ChatClient {
     }
 
     async getCompletion(modelOptions, onProgress, abortController, debug = false) {
-
         const opts = {
             method: 'POST',
             headers: {
@@ -567,6 +567,7 @@ export default class ChatClient {
             role,
             message: message.text,
             unvisited: true,
+            createdAt: Date.now(),
             ...(message.type ? { type: message.type } : {}),
             ...(message.details ? { details: message.details } : {}),
             ...opts,

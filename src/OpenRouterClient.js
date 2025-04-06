@@ -48,7 +48,7 @@ const OPENROUTER_PARTICIPANTS = {
 
 export default class OpenRouterClient extends ChatClient {
     constructor(options = {}) {
-        options.cache.namespace = options.cache.namespace || 'openrouter';
+        // options.cache.namespace = options.cache.namespace || 'openrouter';
         super(options);
         this.apiKey = process.env.OPENROUTER_API_KEY || '';
         this.completionsUrl = 'https://openrouter.ai/api/v1/chat/completions';
@@ -58,6 +58,14 @@ export default class OpenRouterClient extends ChatClient {
         this.participants = OPENROUTER_PARTICIPANTS;
 
         this.setOptions(options);
+    }
+
+    getHeaders() {
+        return {
+            Authorization: `Bearer ${this.apiKey}`,
+            'X-Title': 'CLooI',
+            'HTTP-Referer': 'https://github.com/socketteer/clooi',
+        };
     }
 
     buildApiParams(userMessage = null, previousMessages = [], systemMessage = null) {

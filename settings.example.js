@@ -4,7 +4,7 @@ export default {
     // Options for the Keyv cache, see https://www.npmjs.com/package/keyv.
     // This is used for storing conversations, and supports additional drivers (conversations are stored in memory by default).
     cacheOptions: {
-        namespace: null, // if namespace is null, it will use the clientToUse
+        namespace: 'claude', // if namespace is null, it will use the model name or clientToUse
     },
     // If set, chat clients will use `keyv-file` to store conversations to this JSON file instead of in memory.
     // However, `cacheOptions.store` will override this if set
@@ -18,6 +18,7 @@ export default {
         // "chatgpt" (openai chat API)
         // "ollama"
         // "openrouter"
+        // "gemini"
         clientToUse: 'claude',
 
         showSuggestions: true, // only implemented for Bing
@@ -68,14 +69,14 @@ export default {
         },
         claudeOptions: {
             modelOptions: {
-                model: 'claude-3-opus-20240229',
+                model: 'claude-3-5-sonnet-20241022',
                 max_tokens: 4096,
                 temperature: 1,
                 stream: true,
             },
             messageOptions: {
-                systemMessage: '', // fs.readFileSync('./contexts/waluigiASCII.txt', 'utf8'),
-                n: 2,
+                systemMessage: '',
+                n: 3,
             },
         },
         infrastructOptions: {
@@ -112,7 +113,20 @@ export default {
                 max_tokens: 600,
             },
             messageOptions: {
-                systemMessage: '', // fs.readFileSync('./contexts/youArePrometheus.txt', 'utf8'),
+                //systemMessage: '', // fs.readFileSync('./contexts/youArePrometheus.txt', 'utf8'),
+                // systemMessage: fs.readFileSync('./contexts/infrastruct_l31405b.txt', 'utf8')
+                systemMessage: fs.readFileSync('./contexts/loomquest2.txt', 'utf8')
+            },
+        },
+        geminiOptions: {
+            modelOptions: {
+                model: 'gemini-2.5-pro-exp-03-25',
+                temperature: 1,
+                stream: true,
+                max_tokens: 2048,
+            },
+            messageOptions: {
+                systemMessage: fs.readFileSync('./contexts/context.txt', 'utf8'),
             },
         },
     },
@@ -142,11 +156,6 @@ export default {
         // (Optional) Set to true to enable `console.debug()` logging
         debug: false,
     },
-    openrouterClient: {
-        apiKey: process.env.OPENROUTER_API_KEY || '',
-        completionsUrl: 'https://openrouter.ai/api/v1/chat/completions',
-        debug: false,
-    },
     infrastructClient: {
         apiKey: process.env.OPENAI_API_KEY || '',
         completionsUrl: 'https://api.openai.com/v1/completions',
@@ -154,10 +163,20 @@ export default {
     },
     claudeClient: {
         apiKey: process.env.ANTHROPIC_API_KEY || '',
-        completionsUrl:  'https://api.anthropic.com/v1/messages',
+        completionsUrl: 'https://api.anthropic.com/v1/messages',
         debug: false,
     },
     ollamaClient: {
+    },
+    openrouterClient: {
+        apiKey: process.env.OPENROUTER_API_KEY || '',
+        completionsUrl: 'https://openrouter.ai/api/v1/chat/completions',
+        debug: false,
+    },
+    geminiClient: {
+        apiKey: process.env.GEMINI_API_KEY || '',
+        completionsUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+        debug: false,
     },
     chatGptBrowserClient: {
         // (Optional) Support for a reverse proxy for the conversation endpoint (private API server).

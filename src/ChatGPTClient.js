@@ -69,7 +69,7 @@ const tokenizersCache = {};
 
 export default class ChatGPTClient extends ChatClient {
     constructor(options = {}) {
-        options.cache.namespace = options.cache.namespace || 'chatgpt';
+        // options.cache.namespace = options.cache.namespace || 'chatgpt';
         super(options);
         this.apiKey = process.env.OPENAI_API_KEY || '';
         this.completionsUrl = 'https://api.openai.com/v1/chat/completions';

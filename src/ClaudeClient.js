@@ -2,33 +2,43 @@ import ChatClient from './ChatClient.js';
 
 const CLAUDE_MODEL_INFO = {
     default: {
-        contextLength: 100000,
+        contextLength: 200000,
         vision: true,
         maxResponseTokens: 10000,
     },
     'claude-3-opus-20240229': {
-        contextLength: 100000,
+        contextLength: 200000,
         vision: true,
         maxResponseTokens: 10000,
     },
     'claude-3-sonnet-20240229': {
-        contextLength: 100000,
+        contextLength: 200000,
         vision: true,
         maxResponseTokens: 10000,
     },
     'claude-3-haiku-20240307': {
-        contextLength: 100000,
+        contextLength: 200000,
         vision: true,
         maxResponseTokens: 10000,
     },
     'claude-3-sonnet-20240229-steering-preview': {
-        contextLength: 100000,
+        contextLength: 200000,
         vision: true,
         maxResponseTokens: 10000,
     },
     'claude-3-5-sonnet-20240620': {
-        contextLength: 100000,
+        contextLength: 200000,
         vision: true,
+        maxResponseTokens: 10000,
+    },
+    'claude-3-5-sonnet-20241022': {
+        contextLength: 200000,
+        vision: true,
+        maxResponseTokens: 10000,
+    },
+    'claude-3-5-haiku-20241022': {
+        contextLength: 200000,
+        vision: false,
         maxResponseTokens: 10000,
     },
 };
@@ -50,7 +60,7 @@ const CLAUDE_DEFAULT_MODEL_OPTIONS = {
 
 export default class ClaudeClient extends ChatClient {
     constructor(options = {}) {
-        options.cache.namespace = options.cache.namespace || 'claude';
+        // options.cache.namespace = options.cache.namespace || options.modelOptions?.model || 'claude';
         super(options);
         this.apiKey = process.env.ANTHROPIC_API_KEY || '';
         this.completionsUrl = 'https://api.anthropic.com/v1/messages';
@@ -62,7 +72,7 @@ export default class ClaudeClient extends ChatClient {
     }
 
     getHeaders() {
-        let anthropicBeta
+        let anthropicBeta;
         if ('steering' in this.options && this.options.steering) {
             anthropicBeta = 'steering-2024-06-04';
         } else {
@@ -105,7 +115,6 @@ export default class ClaudeClient extends ChatClient {
             // console.debug(progressMessage);
         }
     }
-
 
     parseReplies(result, replies) {
         result.forEach((res, idx) => {

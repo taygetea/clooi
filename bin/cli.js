@@ -116,25 +116,19 @@ async function updateSettings(path) {
     // settings.bingAiClient.features = settings.bingAiClient.features || {};
     // settings.bingAiClient.features.genImage = false;
 
-    
     clientToUse = settings.cliOptions?.clientToUse || settings.clientToUse || 'bing';
     // console.log(settings)
 
     clientOptions = getClientSettings(clientToUse, settings);
     client = getClient(clientToUse, settings);
-
 }
 
-
-
 async function loadSettings() {
-    
     await initializeSettingsWatcher(pathToSettings);
 
     conversationData = settings.cliOptions?.conversationData || settings.conversationData || {};
 
     responseData = {};
-    
     if (clientToUse === 'bing') {
         console.log(tryBoxen('Welcome to the Bingleton Backrooms CLooI', {
             title: '😊', padding: 0.7, margin: 1, titleAlignment: 'center', borderStyle: 'arrow', borderColor: 'gray',
@@ -273,7 +267,7 @@ let availableCommands = [
     {
         name: '!cp - Copy data to clipboard',
         value: '!cp',
-        usage: '!cp [type] [branch_index] [type]',
+        usage: '!cp [index] [branch_index] [type]',
         description: 'Copy data to clipboard.\n\t[type]: If arguments aren\'t provided, defaults to copying current index/branch and plaintext of the message. If "?" is one of the arguments, opens dropdown for types of data to copy.',
         command: async args => printOrCopyData('copy', args.slice(1)),
     },
@@ -290,6 +284,22 @@ let availableCommands = [
         usage: '!ml',
         description: 'Open the editor (for multi-line messages). When changes are saved and the editor is closed, the message will be sent.',
         command: async () => useEditor(),
+    },
+    {
+        name: '!tag - Add tag(s) to the current message',
+        value: '!tag',
+        usage: '!tag [tag1] [tag2] ...',
+        description: 'Add tag(s) to the current message.\n\t[tag1] [tag2] ...: The tags to add to the current message.',
+        available: async () => Boolean(conversationData.parentMessageId),
+        command: async args => addTags(conversationData.parentMessageId, args.slice(1)),
+    },
+    {
+        name: '!untag - Remove tag(s) from the current message',
+        value: '!untag',
+        usage: '!untag [tag1] [tag2] ...',
+        description: 'Remove tag(s) from the current message.\n\t[tag1] [tag2] ...: The tags to remove from the current message.',
+        available: async () => Boolean(conversationData.parentMessageId),
+        command: async args => removeTags(conversationData.parentMessageId, args.slice(1)),
     },
     {
         name: '!edit - Edit and fork the current message',
@@ -368,18 +378,18 @@ let availableCommands = [
         value: '!steer',
         usage: '!steer <id> <amount>',
         description: '',
-        command: async args => {
-            if (args.length == 1) {
+        command: async (args) => {
+            if (args.length === 1) {
                 steeringFeatures = {};
-                console.log("Reset steering features");
-            } else if (args[1] == 'cat') {
-                console.log("Steering features", steeringFeatures);
+                console.log('Reset steering features');
+            } else if (args[1] === 'cat') {
+                console.log('Steering features', steeringFeatures);
             } else {
-                let amount = 10
+                let amount = 10;
                 if (args[2] != null) {
                     amount = args[2];
                 }
-                steeringFeatures["feat_34M_20240604_" + args[1]] = Number(amount);
+                steeringFeatures[`feat_34M_20240604_${args[1]}`] = Number(amount);
             }
             return conversation();
         },
@@ -412,8 +422,11 @@ async function showCommandDocumentation(command) {
     return conversation();
 }
 
-
 async function conversation() {
+    const { model } = clientOptions.modelOptions;
+    const { namespace } = client;
+    console.log('Model:', model);
+    console.log('Namespace:', namespace);
     console.log('Type "!" to access the command menu.');
     const prompt = inquirer.prompt([
         {
@@ -496,10 +509,10 @@ async function generateMessage() {
         null,
         {
             ...clientOptions.modelOptions,
-            ...(Object.keys(steeringFeatures) != 0 ? {
+            ...(Object.keys(steeringFeatures) !== 0 ? {
                 steering: {
-                    feature_levels: steeringFeatures
-                }
+                    feature_levels: steeringFeatures,
+                },
             } : {}),
         },
         {
@@ -604,7 +617,6 @@ async function generateMessage() {
 
         responseData.response = results;
 
-
         if (!streamedMessages[previewIdx]) {
             // console.log('not streaming');
             // remove event listeners
@@ -623,7 +635,9 @@ async function generateMessage() {
             await client.conversationsCache.set(conversationId, localConversation);
             // await pullFromCache();
 
-            
+            if (previewMessage.id === undefined) {
+                return null;
+            }
             return selectMessage(previewMessage.id, conversationId);
         }
 
@@ -635,11 +649,8 @@ async function generateMessage() {
         // showHistory();
         return null;
     } catch (error) {
-
-
         // remove event listeners
         process.removeAllListeners('SIGINT');
-    
         spinner.stop();
         console.log(error);
         if (streamedMessages && Object.keys(streamedMessages).length > 0) {
@@ -683,7 +694,7 @@ function retryResponse() {
         logWarning('No message to rewind to.');
         return conversation();
     }
-    const currentMessage = getCurrentMessage();
+    const currentMessage = getHistoryMessage();
     if (!currentMessage) {
         logWarning('Current message not found.');
         return conversation();
@@ -704,7 +715,7 @@ function getMessageByIndex(pathIndex = null, branchIndex = null) {
     }
     let anchorMessage = null;
     if (pathIndex === null || pathIndex === '.') {
-        anchorMessage = getCurrentMessage();
+        anchorMessage = getHistoryMessage();
     } else {
         if (pathIndex < 0) {
             pathIndex -= 1; // relative index
@@ -856,9 +867,9 @@ async function selectSiblingMessage(index = null) {
 
 async function debug(args) {
 
-    console.log(clientOptions);
+    // console.log(clientOptions);
 
-    // return loadByTree();
+    return loadByTree();
     
     // console.log(conversationId);
     // const targetMessage = await getMessageByIndex(args[0], args[1]);
@@ -925,7 +936,38 @@ async function useEditor() {
     // return generateMessage(message);
 }
 
+async function addTags(messageId, tags) {
+    const message = await getHistoryMessage(messageId);
+    // message.tags = [...message.tags, ...tags];
+    // get tags that are not in message.tags
+    const oldTags = message.tags || [];
+    const newTags = tags.filter(tag => !oldTags.includes(tag));
+    if (newTags.length === 0) {
+        logWarning('No new tags.');
+        return conversation();
+    }
+    message.tags = [...oldTags, ...newTags];
+    await pushToCache();
+    logSuccess(`Added tags to message ${messageId}: ${newTags.join(', ')}`);
+    return conversation();
+}
+
+async function removeTags(messageId, tags) {
+    const message = await getHistoryMessage(messageId);
+    const oldTags = message.tags || [];
+    const newTags = oldTags.filter(tag => !tags.includes(tag));
+    if (newTags.length === oldTags.length) {
+        logWarning('No tags removed.');
+        return conversation();
+    }
+    message.tags = newTags;
+    await pushToCache();
+    logSuccess(`Removed tags from message ${messageId}: ${tags.join(', ')}`);
+    return conversation();
+}
+
 async function editMessage(messageId, args = null) {
+    // TODO messageId is not used
     const [pathIndex, branchIndex] = args;
     // const currentMessage = await getCurrentMessage();
     const targetMessage = getMessageByIndex(pathIndex, branchIndex);
@@ -967,7 +1009,7 @@ async function editMessage(messageId, args = null) {
 
 async function mergeUp() {
     // const messages = await conversationMessages();
-    const currentMessage = getCurrentMessage();
+    const currentMessage = getHistoryMessage();
     const parentMessage = getParent(localConversation.messages, currentMessage.id);
     if (!parentMessage) {
         logWarning('No parent message.');
@@ -1032,6 +1074,9 @@ async function loadConversationState(name = 'lastConversation') {
             ...data,
             conversationId,
         });
+        if (name !== 'lastConversation') {
+            await client.conversationsCache.set('lastLoadedState', name);
+        }
         logSuccess(`Resumed ${conversationId} at ${name}.`);
         showHistory();
         return conversation();
@@ -1047,10 +1092,10 @@ async function loadByTree() {
             type: 'list',
             name: 'conversationId',
             message: 'Select a tree:',
-            choices: Object.entries(conversationsWithSavedStates).map(([conversationId, conversationInfo]) => (
+            choices: Object.entries(conversationsWithSavedStates).map(([cId, conversationInfo]) => (
                 {
-                name: `${conversationInfo?.name} (${conversationInfo?.states?.length} saved states)`, 
-                value: conversationId,
+                    name: `${conversationInfo?.name} (${conversationInfo?.states?.length} saved states)`,
+                    value: cId,
                 }
             )),
             pageSize: Math.min(conversationsWithSavedStates.length * 2, 15),
@@ -1061,14 +1106,15 @@ async function loadByTree() {
         return conversation();
     }
 
-    const savedStatesInTree = conversationsWithSavedStates[conversationId].states.map(state => state.name)
+    const savedStatesInTree = conversationsWithSavedStates[conversationId].states.map(state => state.name);
+    savedStatesInTree.push(new inquirer.Separator());
 
     let name;
     const { conversationName } = await inquirer.prompt([
         {
             type: 'list',
             name: 'conversationName',
-            message: 'Select a conversation to load:',
+            message: 'Select a conversation state to load:',
             choices: savedStatesInTree,
             pageSize: Math.min(savedStatesInTree.length * 2, 20),
         },
@@ -1088,12 +1134,24 @@ async function loadSavedState(name = null) {
         return conversation();
     }
     if (!name) {
+        const savedConversationChoices = savedConversations.map(state => ({
+            name: state,
+            value: state,
+        }));
+
+        savedConversationChoices.push({
+            name: '!resume (most recent state)',
+            value: 'lastConversation',
+        });
+        savedConversationChoices.push(new inquirer.Separator());
+        const defaultValue = await client.conversationsCache.get('lastLoadedState') || 'lastConversation';
         const { conversationName } = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'conversationName',
-                message: 'Select a conversation to load:',
-                choices: savedConversations,
+                message: 'Select a conversation state to load:',
+                choices: savedConversationChoices,
+                default: defaultValue,
                 pageSize: Math.min(savedConversations.length * 2, 20),
             },
         ]);
@@ -1113,7 +1171,7 @@ async function loadConversation(conversationId) {
         return conversation();
     }
     // conversationData.conversationId = conversationId;
-    const lastMessageId = localConversation.messages[messages.length - 1].id;
+    const lastMessageId = localConversation.messages[localConversation.messages.length - 1].id;
     // conversationData.parentMessageId = lastMessageId;
     await setConversationData({
         conversationId,
@@ -1402,7 +1460,7 @@ function navButton(node, idx, mainMessageId) { //, savedIds = []) {
 }
 
 function conversationMessageBox(conversationMessage, index = null) {
-    if(conversationMessage.unvisited) {
+    if (conversationMessage.unvisited) {
         // mark as visited
         conversationMessage.unvisited = false;
     }
@@ -1488,13 +1546,16 @@ function getConversationId(data = conversationData) {
     return getCid(data);
 }
 
-function getCurrentMessage() {
+function getHistoryMessage(messageId = null) {
     if (!conversationData?.parentMessageId) {
         // logWarning('No message id.');
         return [];
     }
+    if (!messageId) {
+        messageId = conversationData?.parentMessageId;
+    }
     const messages = getHistory();
-    return messages.find(message => message.id === conversationData.parentMessageId);
+    return messages.find(message => message.id === messageId);
 }
 
 async function getCachedConversation() {
@@ -1516,7 +1577,6 @@ async function pushToCache() {
     }
     await client.conversationsCache.set(getConversationId(), localConversation);
 }
-
 
 function getHistory() {
     // const messages = await conversationMessages();
