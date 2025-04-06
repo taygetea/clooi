@@ -41,6 +41,11 @@ const CLAUDE_MODEL_INFO = {
         vision: false,
         maxResponseTokens: 10000,
     },
+    'claude-3-7-sonnet-20250219': {
+        contextLength: 200000,
+        vision: false,
+        maxResponseTokens: 10000,
+    },
 };
 
 const CLAUDE_PARTICIPANTS = {
@@ -76,7 +81,8 @@ export default class ClaudeClient extends ChatClient {
         if ('steering' in this.options && this.options.steering) {
             anthropicBeta = 'steering-2024-06-04';
         } else {
-            anthropicBeta = 'messages-2023-12-15';
+            // anthropicBeta = 'messages-2023-12-15';
+            anthropicBeta = 'output-128k-2025-02-19'
         }
         return {
             'x-api-key': this.apiKey,

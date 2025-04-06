@@ -32,7 +32,11 @@ import GeminiClient from '../src/GeminiClient.js';
 //             {
 //                 value: 'openrouter',
 //                 description: 'OpenRouter API',
-//             }
+//             },
+//             {
+//                 value: 'gemini',
+//                 description: 'Gemini API',
+//             },
 //         ],
 //         default: 'claude',
 //         description: 'API client to use',
@@ -232,7 +236,7 @@ export function getClientSettings(clientToUse, allSettings) {
         case 'gemini':
             clientOptions = {
                 ...allSettings.geminiClient,
-                ...allSettings.cliOptions.openRouterOptions,
+                ...allSettings.cliOptions.geminiOptions,
             };
             break;
         default:
