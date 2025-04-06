@@ -4,6 +4,7 @@ import InfrastructClient from '../src/InfrastructClient.js';
 import ClaudeClient from '../src/ClaudeClient.js';
 import OllamaClient from '../src/OllamaClient.js';
 import OpenRouterClient from '../src/OpenRouterClient.js';
+import GeminiClient from '../src/GeminiClient.js';
 
 // const settings = {
 //     clientToUse: {
@@ -228,6 +229,12 @@ export function getClientSettings(clientToUse, allSettings) {
                 ...allSettings.cliOptions.openRouterOptions,
             };
             break;
+        case 'gemini':
+            clientOptions = {
+                ...allSettings.geminiClient,
+                ...allSettings.cliOptions.openRouterOptions,
+            };
+            break;
         default:
             throw new Error('Invalid clientToUse setting.');
     }
@@ -247,6 +254,7 @@ export function getClient(clientToUse, allSettings) {
         case 'ollama': client = new OllamaClient(clientOptions); break;
         case 'chatgpt': client = new ChatGPTClient(clientOptions); break;
         case 'openrouter': client = new OpenRouterClient(clientOptions); break;
+        case 'gemini': client = new GeminiClient(clientOptions); break;
         default: throw new Error('Invalid clientToUse setting.');
     }
     return client;

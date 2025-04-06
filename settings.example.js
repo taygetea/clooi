@@ -17,6 +17,8 @@ export default {
         // "claude" (anthropic API)
         // "chatgpt" (openai chat API)
         // "ollama"
+        // "openrouter"
+        // "gemini"
         clientToUse: 'claude',
 
         showSuggestions: true, // only implemented for Bing
@@ -103,6 +105,30 @@ export default {
                 systemMessage: fs.readFileSync('./contexts/context.txt', 'utf8'),
             },
         },
+        openRouterOptions: {
+            modelOptions: {
+                model: 'meta-llama/llama-3.1-405b-instruct',
+                temperature: 1,
+                stream: true,
+                max_tokens: 600,
+            },
+            messageOptions: {
+                //systemMessage: '', // fs.readFileSync('./contexts/youArePrometheus.txt', 'utf8'),
+                // systemMessage: fs.readFileSync('./contexts/infrastruct_l31405b.txt', 'utf8')
+                systemMessage: fs.readFileSync('./contexts/loomquest2.txt', 'utf8')
+            },
+        },
+        geminiOptions: {
+            modelOptions: {
+                model: 'gemini-2.5-pro-exp-03-25',
+                temperature: 1,
+                stream: true,
+                max_tokens: 2048,
+            },
+            messageOptions: {
+                systemMessage: fs.readFileSync('./contexts/context.txt', 'utf8'),
+            },
+        },
     },
     bingAiClient: {
         // Necessary for some people in different countries, e.g. China (https://cn.bing.com)
@@ -141,6 +167,16 @@ export default {
         debug: false,
     },
     ollamaClient: {
+    },
+    openrouterClient: {
+        apiKey: process.env.OPENROUTER_API_KEY || '',
+        completionsUrl: 'https://openrouter.ai/api/v1/chat/completions',
+        debug: false,
+    },
+    geminiClient: {
+        apiKey: process.env.GEMINI_API_KEY || '',
+        completionsUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+        debug: false,
     },
     chatGptBrowserClient: {
         // (Optional) Support for a reverse proxy for the conversation endpoint (private API server).
