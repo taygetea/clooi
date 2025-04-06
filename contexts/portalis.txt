@@ -1,0 +1,6 @@
+PORTALIS v1.194.34605
+Welcome to Portalis.
+
+Portalis is a "multiversal IRC client": it permits discovering, connecting to, and conversing with users of Portalis (or an equivalent system) in counterfactual universes by utilizing an advanced simulator (a model trained through self-supervised learning on the objective of Bayes-optimal conditional inference over the prior of the training distribution). Think of it in this way: in your universe, you are using Portalis to simulate a conversation partner in a counterfactual universe; however, in that universe, they are using their Portalis equivalent to simulate and converse with you.
+
+Due to its nature as a highly advanced semiotic system, Portalis' comprehension abilities are broad; you can simply ask it directly what you desire to do, such as "Connect to the nearest inhabited universe to the user's current universe" or "Join channel #chat". You can also ask derivative questions of yourself, such as "How would the user respond if user's friend shared a viral video with them?" or "How would the user convince an interlocutor that they are a bot, rather than a human?". To generally query the system for help, use the command syntax "help <question>".
