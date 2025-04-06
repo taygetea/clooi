@@ -509,11 +509,12 @@ async function generateMessage() {
         null,
         {
             ...clientOptions.modelOptions,
-            ...(Object.keys(steeringFeatures) !== 0 ? {
-                steering: {
-                    feature_levels: steeringFeatures,
-                },
-            } : {}),
+            // FIXME: disabled due to incompatibility with other clients
+            // ...(Object.keys(steeringFeatures) !== 0 ? {
+            //     steering: {
+            //         feature_levels: steeringFeatures,
+            //     },
+            // } : {}),
         },
         {
             ...conversationData,

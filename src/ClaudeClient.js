@@ -77,17 +77,17 @@ export default class ClaudeClient extends ChatClient {
     }
 
     getHeaders() {
-        let anthropicBeta;
-        if ('steering' in this.options && this.options.steering) {
-            anthropicBeta = 'steering-2024-06-04';
-        } else {
-            // anthropicBeta = 'messages-2023-12-15';
-            anthropicBeta = 'output-128k-2025-02-19'
-        }
+        // let anthropicBeta;
+        // if ('steering' in this.options && this.options.steering) {
+        //     anthropicBeta = 'steering-2024-06-04';
+        // } else {
+        //     // anthropicBeta = 'messages-2023-12-15';
+        //     anthropicBeta = 'output-128k-2025-02-19'
+        // }
         return {
             'x-api-key': this.apiKey,
             'anthropic-version': '2023-06-01',
-            'anthropic-beta': anthropicBeta,
+            // 'anthropic-beta': anthropicBeta,
         };
     }
 
